@@ -5,13 +5,14 @@ from .models import *
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    filename = serializers.CharField(max_length=10,required=True)
+    filename = serializers.CharField(max_length=20,required=True)
     itemcode = serializers.CharField(max_length=10,required=True)
-    base_item_code = serializers.CharField(max_length=25,required=True)
-    qty = serializers.CharField(max_length=10,required=True)
+    # base_item_code = serializers.CharField(max_length=25,required=True)
+    # qty = serializers.CharField(max_length=10,required=True)
     cust = serializers.CharField(max_length=10,required=True)
     address = serializers.CharField(max_length=50,required=True)
     consignee = serializers.CharField(max_length=50,required=True)
+    ship_by = serializers.CharField(max_length=10,required=True)
     country = serializers.CharField(max_length=10,required=True)
     phone = serializers.CharField(max_length=20,required=True)
     pincode = serializers.CharField(max_length=10,required=True)
