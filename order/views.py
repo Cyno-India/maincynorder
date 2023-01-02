@@ -20,6 +20,8 @@ from django.views import View
 # from matplotlib.style import available
 
 from rest_framework.views import APIView
+
+from ordermsbc.function import getnonbomorder, getsalesorders
 from .serializers import *
 from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
@@ -38,7 +40,7 @@ from rest_framework.parsers import FileUploadParser
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from .models import MasterDocs
-
+from ordermsbc.models import ItemCard,BomAssemblyTable,Weight
 
 import re
 from rest_framework import permissions, status
@@ -280,191 +282,191 @@ class MasterPost(APIView):
 
 
 
-class CustomerOrder(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+# class CustomerOrder(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+#     parser_classes = [parsers.MultiPartParser, parsers.FormParser]
 
 
-    def post(self, request):
-        user_id = request.user.id
-        user_instance = UserAccount.objects.filter(id=user_id)
+#     def post(self, request):
+#         user_id = request.user.id
+#         user_instance = UserAccount.objects.filter(id=user_id)
 
-        print(user_id,'user id')
-        # if request.method == "POST":
-        #         allimages = request.FILES['file']
-        #         fi = Docs.objects.create(customer_id=user_instance[0],document=allimages)
-        # request.data['customer_id'] = user_id
-        t = Docs.objects.filter(customer_id=user_id).values_list('document')[0][0]
-        print(t)
-        excel_data_df = pandas.read_excel(t, sheet_name='Sheet1')
-        print(user_instance)
-        custdate = datetime.today().date().strftime("%y%m%d")
-        print(user_id)
-        cust = f"{request.user.username}_{custdate}"
-        # print(custdate)
-        usr = request.user.username
-        # print(cust)
-        master_object = Order.objects.filter(customer_id=user_id).values_list('file_name')
-        print('master_object',master_object)
+#         print(user_id,'user id')
+#         # if request.method == "POST":
+#         #         allimages = request.FILES['file']
+#         #         fi = Docs.objects.create(customer_id=user_instance[0],document=allimages)
+#         # request.data['customer_id'] = user_id
+#         t = Docs.objects.filter(customer_id=user_id).values_list('document')[0][0]
+#         print(t)
+#         excel_data_df = pandas.read_excel(t, sheet_name='Sheet1')
+#         print(user_instance)
+#         custdate = datetime.today().date().strftime("%y%m%d")
+#         print(user_id)
+#         cust = f"{request.user.username}_{custdate}"
+#         # print(custdate)
+#         usr = request.user.username
+#         # print(cust)
+#         master_object = Order.objects.filter(customer_id=user_id).values_list('file_name')
+#         print('master_object',master_object)
 
-        master = list(MasterModel.objects.all().values_list('Particular','Ordered_ItemCode','Base_ItemCode','Qty'))
-        tab = list(MasterModel.objects.all().values_list('Particular'))
-        new_data = []
-        new_con = []
-        part = []
-        hello = []
+#         master = list(MasterModel.objects.all().values_list('Particular','Ordered_ItemCode','Base_ItemCode','Qty'))
+#         tab = list(MasterModel.objects.all().values_list('Particular'))
+#         new_data = []
+#         new_con = []
+#         part = []
+#         hello = []
 
-        # for ind in excel_data_df.index:
-        #         shi = excel_data_df['Particular[Ship]'][ind][-5:]
-        #         print('ship by',shi)
-        # for i in tab:
-        #     i[0]
-        number = 0
-        print('counttt',number)
-        for mt in master_object:
-            ml = mt[0]
-            cust = f"{request.user.username}_{custdate}"
-            print('master oasdasdas',ml)
-            if cust in ml:
-                number += 1
-                cust = f"{request.user.username}-{custdate}-{number}"
-                print('new num', cust)
-            else:
-                cust = f"{request.user.username}-{custdate}"
-
-        
+#         # for ind in excel_data_df.index:
+#         #         shi = excel_data_df['Particular[Ship]'][ind][-5:]
+#         #         print('ship by',shi)
+#         # for i in tab:
+#         #     i[0]
+#         number = 0
+#         print('counttt',number)
+#         for mt in master_object:
+#             ml = mt[0]
+#             cust = f"{request.user.username}_{custdate}"
+#             print('master oasdasdas',ml)
+#             if cust in ml:
+#                 number += 1
+#                 cust = f"{request.user.username}-{custdate}-{number}"
+#                 print('new num', cust)
+#             else:
+#                 cust = f"{request.user.username}-{custdate}"
 
         
-            # print(d)
-        # print(master.count())
-        # print(master)
-        try:
-                    # print(d)
-            # for ind in excel_data_df.index:
-            #     shi = excel_data_df['Particular[Ship]'][ind][-5:]
-            #     print('ship by',shi)
-            for ind in excel_data_df.index:
-                p = excel_data_df['Particular[Ship]'][ind].replace('[RAM]',"")
-                part.append(p)
-                shi = excel_data_df['Particular[Ship]'][ind][-5:]
-                print('ship by',shi)
 
-                # if p in i[0]:
-                #     cust = f"{user.username}{custdate}_02"
-                # else:
-                #     cust = f"{user.username}{custdate}"
+        
+#             # print(d)
+#         # print(master.count())
+#         # print(master)
+#         try:
+#                     # print(d)
+#             # for ind in excel_data_df.index:
+#             #     shi = excel_data_df['Particular[Ship]'][ind][-5:]
+#             #     print('ship by',shi)
+#             for ind in excel_data_df.index:
+#                 p = excel_data_df['Particular[Ship]'][ind].replace('[RAM]',"")
+#                 part.append(p)
+#                 shi = excel_data_df['Particular[Ship]'][ind][-5:]
+#                 print('ship by',shi)
 
-
-                # r = excel_data_df['Particular[Ship]'][ind]   
-                # print(r[-5:-0])
-                # print(r[-5:])
-                c = excel_data_df['Consignee Name'][ind]
-                ca = excel_data_df['Complete Address'][ind]
-                pc = excel_data_df['Pincode'][ind]
-                coun = excel_data_df['COUNTRY'][ind]
-                phn = excel_data_df['Phone'][ind]
-                # print('pppppooooo',p)
-                pdata = {
-                    "filename":p,
-                    "consignee":c,
-                    "address":ca,
-                    "country":coun
-                }
-                new_con.append(pdata)
+#                 # if p in i[0]:
+#                 #     cust = f"{user.username}{custdate}_02"
+#                 # else:
+#                 #     cust = f"{user.username}{custdate}"
 
 
-                for i in master:
-                        d =i
-                        # print(d)
-                        # print('for loop',p)
-                        # b = i[2]
-                        # print(d)
-                        if p in d:
-                            # print('ppppp',p)
-                            new_order= d[0]
-                            print(new_order)
-                            new_item= d[1]
-                            new_base= d[2]
-                            new_qty= d[3]
-                            data = {
-                                "filename" :cust,
-                                "particular":p,
-                                "itemcode":new_item,
-                                # "base_item_code":new_base,
-                                # "qty":new_qty,
-                                "cust":usr,
-                                "address":ca,
-                                "ship_by":shi,
-                                "consignee":c,
-                                "country":coun,
-                                "phone":phn,
-                                "pincode":pc
+#                 # r = excel_data_df['Particular[Ship]'][ind]   
+#                 # print(r[-5:-0])
+#                 # print(r[-5:])
+#                 c = excel_data_df['Consignee Name'][ind]
+#                 ca = excel_data_df['Complete Address'][ind]
+#                 pc = excel_data_df['Pincode'][ind]
+#                 coun = excel_data_df['COUNTRY'][ind]
+#                 phn = excel_data_df['Phone'][ind]
+#                 # print('pppppooooo',p)
+#                 pdata = {
+#                     "filename":p,
+#                     "consignee":c,
+#                     "address":ca,
+#                     "country":coun
+#                 }
+#                 new_con.append(pdata)
 
 
-                            }
-                            new_data.append(data)
-                            serializer = OrderSerializer(data=data)
-                            serializer.is_valid(raise_exception=True)
-                            Order.objects.filter(customer_id=user_id).create(customer_id=user_instance[0],file_name=cust,particular=p,itemcode=new_item,base_item_code=new_base,qty=new_qty,cust=usr,address=ca,consignee=c,country=coun,phone=phn,pincode=pc,ship_by=shi)
-                            deletefile = Docs.objects.filter(customer_id=user_id).delete()
-                            dt = Order.objects.filter(customer_id=user_id).values('file_name','particular','itemcode','base_item_code','qty','address','ship_by','consignee','phone','pincode')
+#                 for i in master:
+#                         d =i
+#                         # print(d)
+#                         # print('for loop',p)
+#                         # b = i[2]
+#                         # print(d)
+#                         if p in d:
+#                             # print('ppppp',p)
+#                             new_order= d[0]
+#                             print(new_order)
+#                             new_item= d[1]
+#                             new_base= d[2]
+#                             new_qty= d[3]
+#                             data = {
+#                                 "filename" :cust,
+#                                 "particular":p,
+#                                 "itemcode":new_item,
+#                                 # "base_item_code":new_base,
+#                                 # "qty":new_qty,
+#                                 "cust":usr,
+#                                 "address":ca,
+#                                 "ship_by":shi,
+#                                 "consignee":c,
+#                                 "country":coun,
+#                                 "phone":phn,
+#                                 "pincode":pc
+
+
+#                             }
+#                             new_data.append(data)
+#                             serializer = OrderSerializer(data=data)
+#                             serializer.is_valid(raise_exception=True)
+#                             Order.objects.filter(customer_id=user_id).create(customer_id=user_instance[0],file_name=cust,particular=p,itemcode=new_item,base_item_code=new_base,qty=new_qty,cust=usr,address=ca,consignee=c,country=coun,phone=phn,pincode=pc,ship_by=shi)
+#                             deletefile = Docs.objects.filter(customer_id=user_id).delete()
+#                             dt = Order.objects.filter(customer_id=user_id).values('file_name','particular','itemcode','base_item_code','qty','address','ship_by','consignee','phone','pincode')
                     
-                            print(p)
+#                             print(p)
                             
 
-                            # print(new_order,new_item,new_base,new_qty)
-                    # print(p)
-            master_country = UserAccount.objects.filter(id=user_id).values_list('country')[0][0].upper()
+#                             # print(new_order,new_item,new_base,new_qty)
+#                     # print(p)
+#             master_country = UserAccount.objects.filter(id=user_id).values_list('country')[0][0].upper()
 
-            user_email= UserAccount.objects.filter(id=user_id).values_list('email')[0][0]
-            # user_txt= TextField.objects.filter(customer_id=user_id).values_list('txtfile')[0][0]
-            for pl in new_data:
-                yl = pl['particular']
-                ylp = pl['consignee']
+#             user_email= UserAccount.objects.filter(id=user_id).values_list('email')[0][0]
+#             # user_txt= TextField.objects.filter(customer_id=user_id).values_list('txtfile')[0][0]
+#             for pl in new_data:
+#                 yl = pl['particular']
+#                 ylp = pl['consignee']
                
-                # print(yl)
-                if yl in part:
-                    ok = part.remove(yl)
-            # for i in part:
-            #     t = {
-            #         "filename":i,
-            #     }
-                # new_temp.append(t)
-            if part not in new_con:
-                print('aellloooo joy',part)
-                party = part    
-                print(party)
-                for t in party:
-                    tt = t
-                    print('new tt',tt)
-                    for i in new_con:
-                        file = i['filename']
-                        file_consginee = i['consignee']
-                        file_address = i['address']
-                        file_country = i['country']
-                        print('file country',file_country)
+#                 # print(yl)
+#                 if yl in part:
+#                     ok = part.remove(yl)
+#             # for i in part:
+#             #     t = {
+#             #         "filename":i,
+#             #     }
+#                 # new_temp.append(t)
+#             if part not in new_con:
+#                 print('aellloooo joy',part)
+#                 party = part    
+#                 print(party)
+#                 for t in party:
+#                     tt = t
+#                     print('new tt',tt)
+#                     for i in new_con:
+#                         file = i['filename']
+#                         file_consginee = i['consignee']
+#                         file_address = i['address']
+#                         file_country = i['country']
+#                         print('file country',file_country)
 
-                        if file_country == master_country:
-                            print('-------------s',file_country)
-                            file_country
-                        else:
-                            file_country = "NA"
+#                         if file_country == master_country:
+#                             print('-------------s',file_country)
+#                             file_country
+#                         else:
+#                             file_country = "NA"
                         
-                        if tt == file:
-                            data = {
-                                "particular":tt,
-                                "consinee":file_consginee,
-                                "address":file_address,
-                                "country":file_country,
-                            }
-                            hello.append(data)
-            print('helllooo data',hello)
-            new_e = TextField.objects.filter(customer_id=user_id).create(customer_id=user_instance[0],txtfile=hello)
-            # mail(user_email,new_data)
-            # dt = Order.objects.filter(customer_id=user_id).values('file_name','particular','itemcode','base_item_code','qty','address','ship_by','consignee','phone','pincode')
-            return Response({"accept":new_data,"reject":hello})
-        except BaseException as err:
-            print(f"Unexpected {err}, {type(err)}")
+#                         if tt == file:
+#                             data = {
+#                                 "particular":tt,
+#                                 "consinee":file_consginee,
+#                                 "address":file_address,
+#                                 "country":file_country,
+#                             }
+#                             hello.append(data)
+#             print('helllooo data',hello)
+#             new_e = TextField.objects.filter(customer_id=user_id).create(customer_id=user_instance[0],txtfile=hello)
+#             # mail(user_email,new_data)
+#             # dt = Order.objects.filter(customer_id=user_id).values('file_name','particular','itemcode','base_item_code','qty','address','ship_by','consignee','phone','pincode')
+#             return Response({"accept":new_data,"reject":hello})
+#         except BaseException as err:
+#             print(f"Unexpected {err}, {type(err)}")
     def get(self, request):
         user_id = request.user.id
         print(user_id,'user id')
@@ -805,3 +807,398 @@ def rejectmail(dt,return_data):
     except Exception as ex:
         print ("Something went wrong….",ex)
     
+class CustomerOrder(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+
+
+    def post(self, request):
+        user_id = request.user.id
+        user_instance = UserAccount.objects.filter(id=user_id)
+       
+        print(user_id,'user id')
+        # if request.method == "POST":
+        #         allimages = request.FILES['file']
+        #         fi = Docs.objects.create(customer_id=user_instance[0],document=allimages)
+        # request.data['customer_id'] = user_id
+        t = Docs.objects.filter(customer_id=user_id).values_list('document')[0][0]
+        print(t)
+        excel_data_df = pandas.read_excel(t, sheet_name='Sheet1')
+        print(user_instance)
+        custdate = datetime.today().date().strftime("%y%m%d")
+        print(user_id)
+        cust = f"{request.user.username}_{custdate}"
+        # print(custdate)
+        usr = request.user.username
+        # print(cust)
+        master_object = Order.objects.filter(customer_id=user_id).values_list('file_name')
+        # print('master_object',master_object)
+
+        master = list(MasterModel.objects.all().values_list('Particular','Ordered_ItemCode','Base_ItemCode','Qty'))
+        
+        tab = list(MasterModel.objects.all().values_list('Particular'))
+        new_data = []
+        new_con = []
+        part = []
+        hello = []
+        new_bom = []
+        new_nonbom = []
+        non_bom_desc = ""
+        non_bom_quan = "1"
+        non_bom_unit = ""
+        bom_desc = ""
+        bom_quan = ""
+        bom_unit = ""
+
+
+
+        # for ind in excel_data_df.index:
+        #         shi = excel_data_df['Particular[Ship]'][ind][-5:]
+        #         print('ship by',shi)
+        # for i in tab:
+        #     i[0]
+        number = 0
+        print('counttt',number)
+        for mt in master_object:
+            ml = mt[0]
+            cust = f"{request.user.username}_{custdate}"
+            # print('master oasdasdas',ml)
+            if cust in ml:
+                number += 1
+                cust = f"{request.user.username}-{custdate}-{number}"
+                # print('new num', cust)
+            else:
+                cust = f"{request.user.username}-{custdate}"
+
+        
+
+        
+            # print(d)
+        # print(master.count())
+        # print(master)
+        try:
+                    # print(d)
+            # for ind in excel_data_df.index:
+            #     shi = excel_data_df['Particular[Ship]'][ind][-5:]
+            #     print('ship by',shi)
+            for ind in excel_data_df.index:
+                p = excel_data_df['Particular[Ship]'][ind].replace('[RAM]',"")
+                part.append(p)
+                shi = excel_data_df['Particular[Ship]'][ind][-5:].strip("[]")
+                print('ship by',shi)
+
+                # if p in i[0]:
+                #     cust = f"{user.username}{custdate}_02"
+                # else:
+                #     cust = f"{user.username}{custdate}"
+
+
+                # r = excel_data_df['Particular[Ship]'][ind]   
+                # print(r[-5:-0])
+                # print(r[-5:])
+                c = excel_data_df['Consignee Name'][ind]
+                ca = excel_data_df['Complete Address'][ind]
+                pc = excel_data_df['Pincode'][ind]
+                coun = excel_data_df['COUNTRY'][ind]
+                phn = excel_data_df['Phone'][ind]
+                # print('pppppooooo',p)
+                pdata = {
+                    "filename":p,
+                    "consignee":c,
+                    "address":ca,
+                    "country":coun
+                }
+                new_con.append(pdata)
+
+
+                for i in master:
+                        d =i
+                        # print(d)
+                        # print('for loop',p)
+                        # b = i[2]
+                        # print(d)
+                        if p in d:
+                            # print('ppppp',p)
+                            new_order= d[0]
+                            print(new_order)
+                            new_item= d[1]
+                            new_base= d[2]
+                            new_qty= d[3]
+                            data = {
+                                "filename" :cust,
+                                "particular":p,
+                                "itemcode":new_item,
+                                # "base_item_code":new_base,
+                                # "qty":new_qty,
+                                "cust":usr,
+                                "address":ca,
+                                "ship_by":shi,
+                                "consignee":c,
+                                "country":coun,
+                                "phone":phn,
+                                "pincode":pc
+
+
+                            }
+                            new_data.append(data)
+                            serializer = OrderSerializer(data=data)
+                            serializer.is_valid(raise_exception=True)
+                            Order.objects.filter(customer_id=user_id).create(customer_id=user_instance[0],file_name=cust,particular=p,itemcode=new_item,base_item_code=new_base,qty=new_qty,cust=usr,address=ca,consignee=c,country=coun,phone=phn,pincode=pc,ship_by=shi)
+                            deletefile = Docs.objects.filter(customer_id=user_id).delete()
+                            dt = Order.objects.filter(customer_id=user_id).values('file_name','particular','itemcode','base_item_code','qty','address','ship_by','consignee','phone','pincode')
+                    
+                            print(p)
+                            
+
+                            # print(new_order,new_item,new_base,new_qty)
+                    # print(p)
+            master_country = UserAccount.objects.filter(id=user_id).values_list('country')[0][0].upper()
+            print('MASTERCOUNTRY',master_country)
+
+            user_email= UserAccount.objects.filter(id=user_id).values_list('email')[0][0]
+            # user_txt= TextField.objects.filter(customer_id=user_id).values_list('txtfile')[0][0]
+            for pl in new_data:
+                yl = pl['particular']
+                ylp = pl['consignee']
+               
+                # print(yl)
+                if yl in part:
+                    ok = part.remove(yl)
+            # for i in part:
+            #     t = {
+            #         "filename":i,
+            #     }
+                # new_temp.append(t)
+            if part not in new_con:
+                # print('aellloooo joy',part)
+                party = part    
+                # print(party)
+                for t in party:
+                    tt = t
+                    # print('new tt',tt)
+                    for i in new_con:
+                        file = i['filename']
+                        file_consginee = i['consignee']
+                        file_address = i['address']
+                        file_country = i['country']
+                        print('file country',file_country)
+
+                        if file_country == master_country:
+                            # print('-------------s',file_country)
+                            file_country
+                        else:
+                            file_country = "NA"
+                        
+                        if tt == file:
+                            data = {
+                                "particular":tt,
+                                "consinee":file_consginee,
+                                "address":file_address,
+                                "country":file_country,
+                            }
+                            hello.append(data)
+            Item_Card = list(ItemCard.objects.all().values_list('No','Description','Box_No','AssemblyBOM','Sales_Unit_of_Measure','Net_Weight'))
+            Bom_table = list(BomAssemblyTable.objects.all().values_list('Parent_Item_No','No','Description','AssemblyBOM','Quantity_per','unit_measure_code'))
+            WeightTable  = list(Weight.objects.all().values_list('Courier_Channel','Country','From_Weight','To_Weight','Amount','C_num'))
+            # print('helllooo data',hello)
+            # print('helllooo data',new_data['itemcode'])
+            new_price = ""
+            new_Amount = ""
+            for n in Item_Card:
+                # new_n = n['No']
+                # print(n)
+                new_n = list(n)
+                # print('ItemCARDDD',new_n)
+                # print(new_n)
+                for l in new_data:
+                    lp = l
+                    # print(l['itemcode'])
+                    if lp['itemcode'] in new_n and new_n[3] == "False":
+                        print('full ',new_n)
+                        # non_bom_desc = new_n[1]
+                        # non_bom_unit = new_n[4]
+                        itemId = new_n[0]
+                        print('NONBOM ID',itemId)
+                        desc = new_n[1]
+                        quan = "1"
+                        unit = new_n[4]
+                        box = new_n[2]
+                        box_netweight = new_n[5]
+                        print('NET WIEGHT',box_netweight)
+                        price = box_netweight * int(quan)
+                        new_price = price
+                        print('PRRICCEE',price)
+                        # print('BOXXXXX',box)
+                        filename = new_data[0]['filename']
+                        address_nonbom = new_data[0]['address']
+                        ship_by_nonbom = new_data[0]['ship_by']
+                        consignee_nonbom = new_data[0]['consignee']
+                        country_nonbom = new_data[0]['country']
+                        phone_nonbom = new_data[0]['phone']
+                        email_nonbom = user_email
+                        nombom = {
+                            "desc" : desc,
+                            "quan" : "1",
+                            "unit" : unit
+                        }
+                        print('NOOON BOOM',new_n[1],quan,new_n[4])
+                        new_from_weight = ""
+                        new_to_weight = ""
+                        
+                        new_cumilative = ""
+                        if str(country_nonbom) == "HONG KONG" and str(ship_by_nonbom) == "EMS":
+                            newl = round(1500+(int(price)/249)*249)
+                        elif str(country_nonbom) == "JAPAN" and str(ship_by_nonbom) == "RAM":
+                            newl = round(179+(int(price)/19)*19)
+                            print('CALCULATED AMOUnt',newl)
+                        elif str(country_nonbom) == "JAPAN" and str(ship_by_nonbom) == "EMS":
+                            newl = round(850+(int(price)/249)*249)
+                            print('CALCULATED AMOUnt',newl)
+                        elif str(country_nonbom) == "CHINA" and str(ship_by_nonbom) == "EMS":
+                            newl = round(790+(int(price)/249)*249)
+                            print('CALCULATED AMOUnt',newl)
+                        elif str(country_nonbom) == "S.KOREA" and str(ship_by_nonbom) == "EMS":
+                            newl = round(122+(int(price)/19)*19)
+                            print('CALCULATED AMOUnt',newl)
+                        # for j in WeightTable:
+                        #     # print(j)
+                        #     # print('INFOOO',country_nonbom,ship_by_nonbom)
+                        #     if j[1]== str(country_nonbom)  and j[0]== str(ship_by_nonbom) and j[2] <= str(price) and j[3] >=str(price):
+                        #         # print('WEIGHTTTTT',j[2],j[3])
+                        #         new_from_weight = j[2]
+                        #         new_to_weight = j[3]
+                        #         # new_amount = j[4]
+                        #         newl = round(179+(int(price)/19)*19)
+                        #         print('CALCULATED AMOUnt',newl)
+                        #         break
+                        # print('new_from_weight',new_from_weight)
+                        # print('new_to_weight',new_to_weight)
+                        # print('new_amount',new_amount)
+
+
+                        # new_nonbom.append(nombom)
+                        getnonbomorder(desc,quan,unit,box,country_nonbom,address_nonbom,phone_nonbom,email_nonbom,consignee_nonbom,filename,newl,itemId)
+                        # break
+                        # print(new_n)
+                        # print(n)
+                    elif lp['itemcode'] == new_n[0] and new_n[3] == "True":
+                        print('hello')
+                        # print(lp)
+                        # print(lp,new_n)
+                        for b in Bom_table:
+                            new_b = list(b)
+                            # print('bomt',new_b)
+                            if lp['itemcode'] in new_b:
+                                print('True',new_b)
+                                print('BOMID',new_n[0])
+                                itemId = new_b[0]
+                                desc = new_b[2]
+                                quan = new_b[4]
+                                print('quan',quan)
+                                unit = new_b[5]
+                                bom_box = new_n[2]
+                                box_netweight = new_n[5]
+                                print('NET WIEGHT',box_netweight)
+                                price = int(box_netweight) * int(quan)
+                                print('PRRICCEE',price)
+                                print('BOXXXXX',bom_box)
+                                
+                                # print('BOM',box)
+                                filename = new_data[0]['filename']
+                                address = new_data[0]['address']
+                                ship_by = new_data[0]['ship_by']
+                                consignee = new_data[0]['consignee']
+                                country = new_data[0]['country']
+                                phone = new_data[0]['phone']
+                                email = user_email
+                                bom = {
+                                    "desc" : desc,
+                                    "quan" : quan,
+                                    "unit" : unit
+                                }
+                                new_from_weight = ""
+                                new_to_weight = ""
+                                new_amount = ""
+                                new_cumilative = ""
+                                if str(country) == "HONG KONG" and str(ship_by) == "EMS":
+                                    newl = round(1500+(int(price)/249)*249)
+                                    print('CALCULATED HONGKONG ',newl)
+                                elif str(country) == "JAPAN" and str(ship_by) == "RAM":
+                                    newl = round(179+(int(price)/19)*19)
+                                    print('CALCULATED AMOUnt',newl)
+                                elif str(country) == "JAPAN" and str(ship_by) == "EMS":
+                                    newl = round(850+(int(price)/249)*249)
+                                    print('CALCULATED AMOUnt',newl)
+                                elif str(country) == "CHINA" and str(ship_by) == "EMS":
+                                    newl = round(790+(int(price)/249)*249)
+                                    print('CALCULATED AMOUnt',newl)
+                                elif str(country) == "S.KOREA" and str(ship_by) == "EMS":
+                                    newl = round(122+(int(price)/19)*19)
+                                    print('CALCULATED AMOUnt',newl)
+                            #     for j in WeightTable:
+                            # # print(j)
+                            #         if j[1]=="JAPAN" and j[0]== "RAM" and j[2] <= str(price) and j[3] >= str(price):
+                            #             # print('WEIGHTTTTT',j[2],j[3])
+                            #             new_from_weight = j[2]
+                            #             new_to_weight = j[3]
+                            #             # new_amount = j[4]
+                            #             new_id = j[0]
+                            #             newl = round(179+(price/19)*19)
+                            #             print('CALCULATED AMOUnt',newl)
+                            #             break
+                            #     print('new_from_weight',new_from_weight)
+                            #     print('new_to_weight',new_to_weight)
+                                # print('new_amount',new_amount)
+                                    # new_bom.append(bom)
+                                print('BOOOOOOM',new_b[2],new_b[4],new_b[5])
+                                getsalesorders(desc,quan,unit,bom_box,country,address,phone,email,consignee,newl,filename,itemId)
+                                break
+
+                                    # bom_desc = new_b[2]
+                                    # bom_quan = new_b[4]
+                                    # bom_unit = new_b[5]
+                                    # getsalesorders(cust,new_b[2],new_b[4])
+
+                        # if lp['itemcode'] == new_n[0] and new_n[3] == "False":
+                        #     print(lp, new_n)
+                                  
+                # new_d = n['Description']
+                # new_b = n['Box_No']
+                # new_a = n['AssemblyBOM']
+
+
+                # itemdata = {
+                #     "No":new_n,
+                #     "Description":new_d,
+                #     "Box_No":new_b,
+                #     "AssemblyBOM":new_a,
+
+                # }
+                # new_icard.append(itemdata)
+                
+                # for lp in new_data:
+                #     # if new_n in lp['itemcode']:   
+                #         print(lp['itemcode'])
+
+
+# ('1098506989', 'RYBELSUS14MG100TABLETS', 'BOX#7', 'True')
+            # print('new_card',new_icard)
+            # new_e = TextField.objects.filter(customer_id=user_id).create(customer_id=user_instance[0],txtfile=hello)
+            # mail(user_email,new_data)
+            # dt = Order.objects.filter(customer_id=user_id).values('file_name','particular','itemcode','base_item_code','qty','address','ship_by','consignee','phone','pincode')
+            # print('BOM',new_bom)
+            # print('NON',new_nonbom)
+            
+            return Response({"accept":new_data,"reject":hello})
+        except BaseException as err:
+            print(f"Unexpected {err}, {type(err)}")
+
+            
+    def get(self, request):
+        user_id = request.user.id
+        print(user_id,'user id')
+        # request.data['customer_id'] = user_id
+        t = Order.objects.filter(customer_id=user_id).values('file_name','particular','itemcode','base_item_code','qty','address','ship_by','consignee','phone','pincode')
+        return Response(t)
+
+

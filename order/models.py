@@ -22,6 +22,7 @@ class Order(models.Model):
     phone = models.CharField(max_length=20,default="")
     pincode = models.CharField(max_length=10,default="")
     created_at = models.DateTimeField(auto_now_add=True)
+    number = models.CharField(max_length=20,default="")
 
 
 
@@ -42,3 +43,5 @@ class Docs(models.Model):
 class TextField(models.Model):
     customer_id = models.ForeignKey(UserAccount,on_delete=models.CASCADE,default="")
     txtfile = models.TextField(max_length=100,default="")
+
+
