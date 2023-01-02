@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/token/verify/', TokenVerifyView.as_view()),
     path('api/users/', include('user.urls')),
     path('api/order/', include('order.urls')),
+    path('api/items/', include('ordermsbc.urls')),
 
     path('admin/', admin.site.urls),
 ]
