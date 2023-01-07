@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-rnblp%_toheizsjetb9w3!q9%y=!s_ho(c5u_@)90dzh0@*am@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['cynoorder.herokuapp.com','localhost','127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -141,13 +141,14 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = 'user.UserAccount'
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000','https://cynoorder.herokuapp.com']
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
-]
+# CORS_ORIGIN_WHITELIST = [
+#     'http://localhost:3000',
+# ]
 
+
+CSRF_TRUSTED_ORIGINS = ['https://guarded-caption-production.up.railway.app']
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -158,7 +159,8 @@ EMAIL_HOST_USER = "info.skyrath@gmail.com"
 EMAIL_HOST_PASSWORD = "krnhpoggbebcqhcx"
 DEFAULT_FROM_EMAIL = "info.skyrath@gmail.com"
 
+STATIC_ROOT = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
