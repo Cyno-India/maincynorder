@@ -37,7 +37,7 @@ from django.contrib.auth.models import BaseUserManager, AbstractUser, Permission
   #   return user
 
 
-class UserAccount(AbstractUser, PermissionsMixin):
+class UserAccount(AbstractUser):
   ROLES = (
       ('admin', 'Admin'),
       ('customer', 'Customer')

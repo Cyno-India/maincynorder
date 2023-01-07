@@ -168,6 +168,11 @@ class Master(APIView):
             p = MasterDocs.objects.all().values_list('document')[0][0]
             return Response(p)
 
+    def patch(self,request):
+        p = MasterDocs.objects.all().values()
+        return Response(p)
+
+
 class MasterPost(APIView):
     parser_classes = [parsers.MultiPartParser, parsers.FormParser]
 
