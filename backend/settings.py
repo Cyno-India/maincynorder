@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-rnblp%_toheizsjetb9w3!q9%y=!s_ho(c5u_@)90dzh0@*am@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['absent-stone-production.up.railway.app;','127.0.0.1']
 
 
 # Application definition
@@ -148,7 +148,7 @@ CORS_ALLOW_CREDENTIALS = True
 # ]
 
 
-CSRF_TRUSTED_ORIGINS = ['https://guarded-caption-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://absent-stone-production.up.railway.app']
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
